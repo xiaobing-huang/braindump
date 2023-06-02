@@ -15,7 +15,7 @@
 ;; it improves over jethrokuan's original in the following ways:
 ;; - supports nested org-files (it will maintain the directory structure on the hugo side)
 ;; - overrides any HUGO directives you might already have in your org mode files
-(defun cpb/publish (org-dir in_file hugo-base-dir out_file)
+(defun xb/publish (org-dir in_file hugo-base-dir out_file)
   (with-current-buffer (find-file-noselect in_file)
     ;; unfortunately, these are overridden by e.g. #+HUGO_BASE_DIR in the file if they are present
     (let* ((org-hugo-base-dir hugo-base-dir)

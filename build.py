@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import subprocess
 import argparse
 import os
 from pathlib import Path
@@ -72,9 +73,12 @@ md_files_input = org_dir.rglob("*.md")
 post_proc = f" && {obs_postproc_py} $out" if args.obsidian else ""
 
 # for ninja, we have to escape space with $, i.e. " " -> "$ "
+
+
 def _ninja_escape(path: Path) -> str:
     """Escape space characters with `$` as required by ninja"""
     return str(path).replace(" ", "$ ")
+
 
 def _make_in_out(f):
     """Calculate and escape full input and output filenames"""
@@ -90,7 +94,7 @@ with Path("build.ninja").open("w") as ninja_file:
     ninja_file.write(
         f"""
 rule org2md
-  command = emacs -nw --batch -l {init_tiny_el} -l {publish_el} --eval \"(cpb/publish \\"{org_dir}\\" \\"$in_\\" \\"{hugo_dir}\\" \\"$out_\\" )\"{post_proc}
+  command = emacs -nw --batch -l {init_tiny_el} -l {publish_el} --eval \"(xb/publish \\"{org_dir}\\" \\"$in_\\" \\"{hugo_dir}\\" \\"$out_\\" )\"{post_proc}
   description = org2md $in
 
 rule COPY
@@ -102,7 +106,7 @@ rule COPY
     for f in org_files_input:
         input_file, output_file = _make_in_out(f)
         out_files_main.append(output_file)
-        # note: we have to pass through our own $in_ and $out_ to the rule, 
+        # note: we have to pass through our own $in_ and $out_ to the rule,
         # because if we use built-in $in and $out, ninja will single quote filenames
         # with spaces in them, and Emacs then reads those as literal single quotes
         ninja_file.write(
@@ -126,8 +130,6 @@ build {output_file}: COPY {input_file}
 """
             )
 
-
-import subprocess
 
 cmd = ["ninja"]
 if args.j:
